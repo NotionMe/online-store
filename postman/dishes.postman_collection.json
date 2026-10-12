@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "937a7296-2d0c-4f5f-9697-6074239be111",
+    "name": "Online Store — Dishes API",
+    "description": "Перевірки CRUD API для ресурсу dishes. Після POST ідентифікатор з відповіді зберігається в змінній createdDishId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "createdDishId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Dishes",
+      "item": [
+        {
+          "name": "Get list",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dishes"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Response is an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ] }
+          }]
+        },
+        {
+          "name": "Filter list by search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dishes?search=nghmh",
+              "host": ["{{baseUrl}}"],
+              "path": ["dishes"],
+              "query": [{ "key": "search", "value": "nghmh" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Every title matches search term', () => {",
+              "  pm.response.json().forEach(dish => pm.expect(dish.title.toLowerCase()).to.include('nghmh'));",
+              "});"
+            ] }
+          }]
+        },
+        {
+          "name": "Get existing record: ID 1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dishes/1"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));"
+            ] }
+          }]
+        },
+        {
+          "name": "Get missing record: 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dishes/99999"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 404 Not Found', () => pm.response.to.have.status(404));"
+            ] }
+          }]
+        },
+        {
+          "name": "Create dish",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman test dish\",\n  \"price\": 189,\n  \"weightGrams\": 350,\n  \"calories\": 520,\n  \"isSpicy\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/dishes"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 201 Created', () => pm.response.to.have.status(201));",
+              "const dish = pm.response.json();",
+              "pm.test('Response has an ID', () => pm.expect(dish.id).to.exist);",
+              "pm.collectionVariables.set('createdDishId', dish.id);"
+            ] }
+          }]
+        },
+        {
+          "name": "Partially update created dish",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{createdDishId}}\",\n  \"price\": 199,\n  \"isSpicy\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/dishes"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Fields are updated', () => {",
+              "  const dish = pm.response.json();",
+              "  pm.expect(dish.price).to.eql(199);",
+              "  pm.expect(dish.isSpicy).to.eql(true);",
+              "});"
+            ] }
+          }]
+        },
+        {
+          "name": "Delete created dish",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/dishes/{{createdDishId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status is 204 No Content', () => pm.response.to.have.status(204));"
+            ] }
+          }]
+        }
+      ]
+    }
+  ]
+}
