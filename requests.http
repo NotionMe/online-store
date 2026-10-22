@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:3000
+@productId = 1
+
+### 1. Створити страву (slug генерується сервісом)
+POST {{baseUrl}}/dishes
+Content-Type: application/json
+
+{
+  "title": "Борщ домашній",
+  "price": 180,
+  "weightGrams": 400,
+  "calories": 320,
+  "isSpicy": false
+}
+
+### 2. Переглянути страви, включно з двома тестовими з OnModuleInit
+GET {{baseUrl}}/dishes
+
+### 3. Замовити страву з ID 1 та перевірити податок 20%
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "quantity": 2,
+  "customerEmail": "student@college.edu"
+}
+
+### 4. Некоректний productId має повернути 404
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "productId": "missing-product",
+  "quantity": 1,
+  "customerEmail": "student@college.edu"
+}
+
+### 5. Список оформлених замовлень
+GET {{baseUrl}}/orders

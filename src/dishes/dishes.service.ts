@@ -1,27 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { DishesEntity } from './entity/dishes.entity.js';
 import { CreateDishesDto, UpdateDishesDto } from './dto/dishes.dto.js';
+import { SlugService } from '../shared/slug/slug.service.js';
 
 @Injectable()
-export class DishesService {
-  private items: DishesEntity[] = [
-    {
-      id: '1',
-      title: "nghmh",
-      price: Math.floor(Math.random() * 1000),
-      weightGrams: Math.floor(Math.random() * 1000),
-      calories: Math.floor(Math.random() * 1000),
-      isSpicy: true
-    },
-    {
-      id: Math.floor(Math.random() * 1000).toString(),
-      title: 'fgjgh',
-      price: Math.floor(Math.random() * 1000),
-      weightGrams: Math.floor(Math.random() * 1000),
-      calories: Math.floor(Math.random() * 1000),
-      isSpicy: false
-    }
-  ];
+export class DishesService implements OnModuleInit {
+
+  private items: DishesEntity[] = [];
+  private readonly logger = new Logger(DishesService.name);
+
+  constructor(private readonly slugService: SlugService) {
+  }
+
+  onModuleInit(): void {
+    this.logger.log('Ініціалізація модуля завершена. Завантажено початкові тестові дані.');
+    this.items.push(
+      { id: '1', title: 'Піца Маргарита', price: 250, weightGrams: 450, calories: 850, isSpicy: false, slug: this.slugService.generateSlug('Піца Маргарита') },
+      { id: '2', title: 'Карі гостре', price: 320, weightGrams: 380, calories: 610, isSpicy: true, slug: this.slugService.generateSlug('Карі гостре') },
+    );
+  }
+
 
   findAll(search?: string, limit?: string): DishesEntity[] {
     let result = this.items;
@@ -51,9 +49,10 @@ export class DishesService {
   }
 
   create(dto: CreateDishesDto): DishesEntity {
-    const newDish: CreateDishesDto = {
+    const newDish: DishesEntity = {
       ...dto,
-      id: Math.floor(Math.random() * 1000).toString()
+      id: dto.id ?? Date.now().toString(),
+      slug: this.slugService.generateSlug(dto.title),
     };
 
     this.items.push(newDish);

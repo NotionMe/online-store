@@ -5,4 +5,5 @@ export type DishesEntity = {
   weightGrams: number;
   calories: number;
   isSpicy: boolean;
-}
+  slug: string;
+};

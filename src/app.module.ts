@@ -4,6 +4,9 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { DishesController } from './dishes/dishes.controller.js';
 import { DishesService } from './dishes/dishes.service.js';
+import { DishesModule } from './dishes/dishes.module.js';
+import { SharedModule } from './shared/shared.module.js';
+import { OrdersModule } from './orders/orders.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -16,8 +19,11 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: 'YOUR_APP_SECRET',
       serviceId: 'online-store',
     }),
+    DishesModule,
+    SharedModule,
+    OrdersModule,
   ],
-  controllers: [AppController, DishesController],
-  providers: [AppService, DishesService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule { }

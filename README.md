@@ -194,6 +194,38 @@ curl -X POST http://localhost:3000/dishes \
 - Реалізовано фільтрацію списку за параметром `search`, обмеження результатів за `limit` і обробку відсутнього ресурсу через `NotFoundException`.
 - Створено Postman-колекцію з тестами, що перевіряє повний цикл CRUD та коди відповідей API.
 
+## Рівні 2–3: модулі, провайдери та життєвий цикл
+
+`DishesModule` експортує `DishesService`, а `OrdersModule` імпортує `DishesModule` і `SharedModule`. `OrdersService` шукає страву через `DishesService.findOne()`, рахує суму, податок і загальну вартість та зберігає підтверджене замовлення в пам'яті. Для відсутнього товару сервіс каталогу повертає `NotFoundException` (HTTP 404).
+
+У `SharedModule` зареєстровано `STORE_CONFIG` через `useValue` (валюта UAH, ставка податку 20%) та `FEE_CALCULATOR` через `useFactory`, який отримує конфігурацію через `inject`. `SlugService` генерує slug для кожної нової страви. `DishesService` завантажує дві тестові страви у `onModuleInit()`, а сервіси виводять повідомлення про готовність через `Logger`.
+
+`RequestIdService` має `Scope.REQUEST` і використовується контролером та сервісом замовлень. Контролер повертає ID поточного запиту у заголовку `X-Request-Id`. Сервіс замовлень використовує спільне in-memory сховище, щоб request scope не втрачав оформлені замовлення між HTTP-запитами.
+
+### Наскрізна перевірка
+
+Файл [`requests.http`](./requests.http) містить послідовність запитів для створення страви зі slug, читання початкових і нових страв, успішного замовлення з податком, перевірки 404 та читання замовлень. Запускайте застосунок через `npm run start:dev`, після чого виконуйте запити у порядку зверху вниз з HTTP-клієнта IDE. Наприклад, для страви ID `1` з ціною 250 грн та кількістю 2 очікується `subtotal: 500`, `taxAmount: 100`, `total: 600`, `currency: "UAH"`.
+
+Приклад успішної відповіді `POST /orders`:
+
+```json
+{
+  "orderId": "ord-...",
+  "productId": "1",
+  "productTitle": "Піца Маргарита",
+  "productSlug": "піца-маргарита",
+  "unitPrice": 250,
+  "quantity": 2,
+  "subtotal": 500,
+  "taxAmount": 100,
+  "total": 600,
+  "currency": "UAH",
+  "customerEmail": "student@college.edu",
+  "status": "confirmed",
+  "createdAt": "<час створення замовлення>"
+}
+```
+
 
 # Лістинг
 

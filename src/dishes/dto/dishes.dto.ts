@@ -11,7 +11,7 @@ import { PartialType } from '@nestjs/mapped-types';
 export class CreateDishesDto {
   @IsString()
   @IsOptional()
-  id: string;
+  id?: string;
 
   @IsString()
   title: string;
@@ -30,6 +30,7 @@ export class CreateDishesDto {
 
   @IsBoolean()
   isSpicy: boolean;
+
 }
 
-export class UpdateDishesDto extends PartialType(CreateDishesDto) {}
+export class UpdateDishesDto extends PartialType(CreateDishesDto) { }
